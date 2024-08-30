@@ -1,0 +1,5 @@
+
+/.vscode
+build/.ninja_deps
+build/.ninja_log
+/build
