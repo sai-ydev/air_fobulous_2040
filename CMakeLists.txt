@@ -21,9 +21,11 @@ set(picotoolVersion 2.0.0)
 include(${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
 # ====================================================================================
 set(PICO_BOARD pico CACHE STRING "Board type")
+SET(FREERTOS_KERNEL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/FreeRTOS-Kernel)
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
+include(FreeRTOS-Kernel/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
 project(AirFobulous C CXX ASM)
 
@@ -32,9 +34,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(AirFobulous src/air_fobulous.c )
-
-FILE(GLOB FreeRTOS_src FreeRTOS-Kernel/*.c)
+add_executable(AirFobulous src/air_fobulous.c)
 
 pico_set_program_name(AirFobulous "AirFobulous")
 pico_set_program_version(AirFobulous "0.1")
@@ -43,20 +43,19 @@ pico_set_program_version(AirFobulous "0.1")
 pico_enable_stdio_uart(AirFobulous 0)
 pico_enable_stdio_usb(AirFobulous 1)
 
-# Add the standard library to the build
-target_link_libraries(AirFobulous
-        pico_stdlib)
-
 # Add the standard include files to the build
 target_include_directories(AirFobulous PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}
   ${CMAKE_CURRENT_LIST_DIR}/.. # for our common lwipopts or any other standard includes, if required
+  ${CMAKE_CURRENT_LIST_DIR}/src/include
 )
 
 # Add any user requested libraries
 target_link_libraries(AirFobulous 
         hardware_i2c
-        )
+        pico_stdlib
+        FreeRTOS-Kernel
+      )
 
 pico_add_extra_outputs(AirFobulous)
 
