@@ -4,23 +4,27 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
-
+#include "timers.h"
 // I2C defines
 // This example will use I2C0 on GPIO8 (SDA) and GPIO9 (SCL) running at 400KHz.
 // Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
-#define I2C_PORT i2c0
-#define I2C_SDA 8
-#define I2C_SCL 9
+#define I2C_PORT i2c1
+#define I2C_SDA 18
+#define I2C_SCL 19
 #define BLUE_LED 25
 
-#define LED_STACK_SIZE 100
+#define LED_TASK_STACK_SIZE 25
+#define PRINT_TASK_STACK_SIZE 500
 
 
 StaticTask_t xLEDTaskBuffer;
+StaticTask_t xPrintTaskBuffer;
 
-StackType_t xLEDTaskStack[LED_STACK_SIZE];
+StackType_t xLEDTaskStack[LED_TASK_STACK_SIZE];
+StackType_t xPrintTaskStack[PRINT_TASK_STACK_SIZE];
 
 TaskHandle_t xLEDTaskHandle;
+TaskHandle_t xPrintTaskHandle;
 
 
 /**
@@ -36,6 +40,22 @@ void led_blinking_task(void *pvParameters)
         vTaskDelay(250);
         gpio_put(BLUE_LED, false);
         vTaskDelay(500);
+        portGET_CORE_ID();
+    }
+}
+
+/**
+ * @brief Printing task
+ * 
+ * @param pvParams 
+ * @returns None
+ */
+void print_task(void *pvParams)
+{
+    while(1)
+    {
+        printf("Current Core: %u\n", portGET_CORE_ID());
+        vTaskDelay(250);
     }
 }
 
@@ -48,22 +68,32 @@ int main()
     
     gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
     gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
-    gpio_pull_up(I2C_SDA);
-    gpio_pull_up(I2C_SCL);
+    
+        
     gpio_init(BLUE_LED);
     gpio_set_dir(BLUE_LED, GPIO_OUT);
-
-    // For more examples of I2C use see https://github.com/raspberrypi/pico-examples/tree/master/i2c
 
     xLEDTaskHandle = xTaskCreateStatic(
                         led_blinking_task,
                         "LED_Blinky",
-                        LED_STACK_SIZE,
+                        LED_TASK_STACK_SIZE,
                         NULL,
-                        (tskIDLE_PRIORITY + 4),
+                        (tskIDLE_PRIORITY + 2),
                         xLEDTaskStack,
                         &xLEDTaskBuffer
-    );  
+    );
+    //vTaskCoreAffinitySet(xLEDTaskHandle, (1 << 0));
+
+    xPrintTaskHandle = xTaskCreateStatic(
+        print_task,
+        "print_task",
+        PRINT_TASK_STACK_SIZE,
+        NULL,
+        (tskIDLE_PRIORITY + 2),
+        xPrintTaskStack,
+        &xPrintTaskBuffer
+    );
+    //vTaskCoreAffinitySet(xLEDTaskHandle, (1 << 1));
     vTaskStartScheduler();
 
     while (true) {
