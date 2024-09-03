@@ -13,22 +13,48 @@
 #define I2C_SCL 19
 #define BLUE_LED 25
 
-#define LED_TASK_STACK_SIZE 25
-#define PRINT_TASK_STACK_SIZE 500
+#define LED_TASK_STACK_SIZE         25
+#define NEOPIXEL_TASK_STACK_SIZE    100
 
+#define PRINT_TASK_STACK_SIZE       500
+#define SD_CARD_TASK_STACK_SIZE     500
 
+#define BME68X_TASK_STACK_SIZE      200
+#define ZMOD4x10_TASK_STACK_SIZE    200
+
+/* Task Buffer Definitions */
 StaticTask_t xLEDTaskBuffer;
+StaticTask_t xNeopixelTaskBuffer;
+
 StaticTask_t xPrintTaskBuffer;
+StaticTask_t xSDCardTaskBuffer;
 
+StaticTask_t xBME68xTaskBuffer;
+StaticTask_t xZMOD4x10TaskBuffer;
+
+/* Stack Definitions*/
 StackType_t xLEDTaskStack[LED_TASK_STACK_SIZE];
-StackType_t xPrintTaskStack[PRINT_TASK_STACK_SIZE];
+StackType_t xNeoPixelTaskStack[NEOPIXEL_TASK_STACK_SIZE];
 
+StackType_t xPrintTaskStack[PRINT_TASK_STACK_SIZE];
+StackType_t xSDCardTaskStack[SD_CARD_TASK_STACK_SIZE];
+
+StackType_t xBME68xTaskStack[BME68X_TASK_STACK_SIZE];
+StackType_t xZMOD4x10TaskStack[ZMOD4x10_TASK_STACK_SIZE];
+
+/* Task Handle definitions */
 TaskHandle_t xLEDTaskHandle;
+TaskHandle_t xNeoPixelTaskHandle;
+
 TaskHandle_t xPrintTaskHandle;
+TaskHandle_t xSDCardTaskHandle;
+
+TaskHandle_t xBME68xTaskHandle;
+TaskHandle_t xZMOD4x10TaskHandle;
 
 
 /**
-* @brief BLED blinking task
+* @brief Blue LED blinking task
 * @param Function params
 * @returns None
 */
