@@ -71,6 +71,20 @@ void led_blinking_task(void *pvParameters)
 }
 
 /**
+ * @brief Neopixel Task
+ * @param Function
+ * 
+ */
+ void neopixel_task(void *pvParams)
+ {
+    while(1)
+    {
+        /*TODO: Neopixel drivers*/
+        vTaskDelay(1000);
+    }
+ }
+
+/**
  * @brief Printing task
  * 
  * @param pvParams 
@@ -99,16 +113,26 @@ int main()
     gpio_init(BLUE_LED);
     gpio_set_dir(BLUE_LED, GPIO_OUT);
 
-    xLEDTaskHandle = xTaskCreateStatic(
-                        led_blinking_task,
-                        "LED_Blinky",
-                        LED_TASK_STACK_SIZE,
-                        NULL,
-                        (tskIDLE_PRIORITY + 2),
-                        xLEDTaskStack,
-                        &xLEDTaskBuffer
+xLEDTaskHandle = xTaskCreateStatic(
+        led_blinking_task,
+        "LED_Blinky",
+        LED_TASK_STACK_SIZE,
+        NULL,
+        (tskIDLE_PRIORITY + 2),
+        xLEDTaskStack,
+        &xLEDTaskBuffer
     );
     //vTaskCoreAffinitySet(xLEDTaskHandle, (1 << 0));
+
+    xNeoPixelTaskHandle = xTaskCreateStatic(
+        neopixel_task,
+        "NeoPixel Task",
+        NEOPIXEL_TASK_STACK_SIZE,
+        NULL,
+        (tskIDLE_PRIORITY + 4),
+        xNeoPixelTaskStack,
+        &xNeopixelTaskBuffer
+    );
 
     xPrintTaskHandle = xTaskCreateStatic(
         print_task,
