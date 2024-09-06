@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
+#include "hardware/pio.h"
+//#include "hardware/clocks.h"
+#include "ws2812.pio.h"
 #include "hardware/i2c.h"
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
@@ -11,6 +14,17 @@
 #define I2C_PORT i2c1
 #define I2C_SDA 18
 #define I2C_SCL 19
+
+#ifdef PICO_DEFAULT_WS2812_PIN
+#define WS2812_PIN PICO_DEFAULT_WS2812_PIN
+#else
+#define WS2812_PIN  16
+#endif
+
+/* neopixel defines */
+#define IS_RGBW false
+#define NUM_PIXELS 1
+
 #define BLUE_LED 25
 
 #define LED_TASK_STACK_SIZE         25
@@ -52,7 +66,15 @@ TaskHandle_t xSDCardTaskHandle;
 TaskHandle_t xBME68xTaskHandle;
 TaskHandle_t xZMOD4x10TaskHandle;
 
+static inline void put_pixel(uint32_t pixel_grb)
+{
+    pio_sm_put_blocking(pio0, 0, pixel_grb << 8u);
+}
 
+static inline uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b)
+{
+    return ((uint32_t) r << 8) | ((uint32_t) g << 16) | ((uint32_t) b);
+}
 /**
 * @brief Blue LED blinking task
 * @param Function params
@@ -77,8 +99,33 @@ void led_blinking_task(void *pvParameters)
  */
  void neopixel_task(void *pvParams)
  {
+    uint offset = pio_add_program(pio0, &ws2812_program);
+
+    ws2812_program_init(pio0, 0, offset, WS2812_PIN, 800000, IS_RGBW);
+
     while(1)
     {
+        put_pixel(urgb_u32(255, 0, 0));
+        /*TODO: Neopixel drivers*/
+        vTaskDelay(1000);
+
+        put_pixel(urgb_u32(0, 0, 0));
+        /*TODO: Neopixel drivers*/
+        vTaskDelay(1000);
+
+        put_pixel(urgb_u32(0, 255, 0));
+        /*TODO: Neopixel drivers*/
+        vTaskDelay(1000);
+        
+        put_pixel(urgb_u32(0, 0, 0));
+        /*TODO: Neopixel drivers*/
+        vTaskDelay(1000);
+
+        put_pixel(urgb_u32(0, 0, 255));
+        /*TODO: Neopixel drivers*/
+        vTaskDelay(1000);
+        
+        put_pixel(urgb_u32(0, 0, 0));
         /*TODO: Neopixel drivers*/
         vTaskDelay(1000);
     }
