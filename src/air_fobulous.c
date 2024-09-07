@@ -146,6 +146,25 @@ void print_task(void *pvParams)
     }
 }
 
+/**
+ * @brief BME688 task
+ * 
+ * @return none
+ */
+void BME68x_Task(void *pvParams)
+{
+    while(1)
+    {
+        vTaskDelay(1);
+    }
+}
+
+
+/**
+ * @brief 
+ * 
+ * @return int 
+ */
 int main()
 {
     stdio_init_all();
@@ -189,6 +208,16 @@ xLEDTaskHandle = xTaskCreateStatic(
         (tskIDLE_PRIORITY + 2),
         xPrintTaskStack,
         &xPrintTaskBuffer
+    );
+
+    xBME68xTaskHandle = xTaskCreateStatic(
+        BME68x_Task,
+        "BME68x_Task",
+        BME68X_TASK_STACK_SIZE,
+        NULL,
+        (tskIDLE_PRIORITY + 8),
+        xBME68xTaskStack,
+        &xBME68xTaskBuffer
     );
     //vTaskCoreAffinitySet(xLEDTaskHandle, (1 << 1));
     vTaskStartScheduler();
