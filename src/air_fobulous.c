@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/pio.h"
-//#include "hardware/clocks.h"
 #include "ws2812.pio.h"
 #include "hardware/i2c.h"
 #include "FreeRTOS.h"
+#include "semphr.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
 #include "timers.h"
+#include "common.h"
+#include "bsec_integration.h"
 // I2C defines
 // This example will use I2C0 on GPIO8 (SDA) and GPIO9 (SCL) running at 400KHz.
 // Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
@@ -27,14 +29,17 @@
 
 #define BLUE_LED 25
 
-#define LED_TASK_STACK_SIZE         25
-#define NEOPIXEL_TASK_STACK_SIZE    100
+#define LED_TASK_STACK_SIZE         500
+#define NEOPIXEL_TASK_STACK_SIZE    500
 
 #define PRINT_TASK_STACK_SIZE       500
 #define SD_CARD_TASK_STACK_SIZE     500
 
-#define BME68X_TASK_STACK_SIZE      200
-#define ZMOD4x10_TASK_STACK_SIZE    200
+#define BME68X_TASK_STACK_SIZE      500
+#define ZMOD4x10_TASK_STACK_SIZE    500
+
+return_values_init ret_bme68x;
+struct bme68x_dev bme_dev;
 
 /* Task Buffer Definitions */
 StaticTask_t xLEDTaskBuffer;
@@ -66,6 +71,9 @@ TaskHandle_t xSDCardTaskHandle;
 TaskHandle_t xBME68xTaskHandle;
 TaskHandle_t xZMOD4x10TaskHandle;
 
+SemaphoreHandle_t xI2CSemaphore;
+StaticSemaphore_t xI2CSemaphore_Buffer;
+
 static inline void put_pixel(uint32_t pixel_grb)
 {
     pio_sm_put_blocking(pio0, 0, pixel_grb << 8u);
@@ -87,8 +95,7 @@ void led_blinking_task(void *pvParameters)
         gpio_put(BLUE_LED, true);
         vTaskDelay(250);
         gpio_put(BLUE_LED, false);
-        vTaskDelay(500);
-        portGET_CORE_ID();
+        vTaskDelay(250);
     }
 }
 
@@ -107,27 +114,28 @@ void led_blinking_task(void *pvParameters)
     {
         put_pixel(urgb_u32(255, 0, 0));
         /*TODO: Neopixel drivers*/
-        vTaskDelay(1000);
+        vTaskDelay(100);
 
         put_pixel(urgb_u32(0, 0, 0));
         /*TODO: Neopixel drivers*/
-        vTaskDelay(1000);
+        vTaskDelay(100);
 
         put_pixel(urgb_u32(0, 255, 0));
         /*TODO: Neopixel drivers*/
-        vTaskDelay(1000);
+        vTaskDelay(100);
         
         put_pixel(urgb_u32(0, 0, 0));
         /*TODO: Neopixel drivers*/
-        vTaskDelay(1000);
+        vTaskDelay(100);
 
         put_pixel(urgb_u32(0, 0, 255));
         /*TODO: Neopixel drivers*/
-        vTaskDelay(1000);
+        vTaskDelay(100);
         
         put_pixel(urgb_u32(0, 0, 0));
         /*TODO: Neopixel drivers*/
-        vTaskDelay(1000);
+        vTaskDelay(100);
+        
     }
  }
 
@@ -141,7 +149,7 @@ void print_task(void *pvParams)
 {
     while(1)
     {
-        printf("Current Core: %u\n", portGET_CORE_ID());
+        printf("Print Task Current Core: %u\n", portGET_CORE_ID());
         vTaskDelay(250);
     }
 }
@@ -153,9 +161,15 @@ void print_task(void *pvParams)
  */
 void BME68x_Task(void *pvParams)
 {
+    
+    memset(&bme_dev,0,sizeof(bme_dev));
+
+    bme68x_interface_init(&bme_dev, BME68X_I2C_INTF);
+
     while(1)
     {
-        vTaskDelay(1);
+        printf("BME Task Core: %u\n", portGET_CORE_ID());
+        vTaskDelay(250);
     }
 }
 
@@ -179,7 +193,15 @@ int main()
     gpio_init(BLUE_LED);
     gpio_set_dir(BLUE_LED, GPIO_OUT);
 
-xLEDTaskHandle = xTaskCreateStatic(
+    xI2CSemaphore = xSemaphoreCreateMutexStatic(&xI2CSemaphore_Buffer);
+    if(xI2CSemaphore != NULL)
+    {
+        printf("Failed to create semaphore handle\n");
+        while(1);
+    }
+
+
+    xLEDTaskHandle = xTaskCreateStatic(
         led_blinking_task,
         "LED_Blinky",
         LED_TASK_STACK_SIZE,

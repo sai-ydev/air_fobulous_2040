@@ -129,8 +129,6 @@ int8_t bme68x_interface_init(struct bme68x_dev *bme, uint8_t intf)
     bme->intf_ptr = &dev_addr;
     bme->amb_temp = 25; /* The ambient temperature in deg C is used for defining the heater temperature */
     
-    
-
     return rslt;
 }
 
