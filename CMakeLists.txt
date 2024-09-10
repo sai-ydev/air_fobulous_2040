@@ -36,6 +36,7 @@ pico_sdk_init()
 add_executable(
   AirFobulous 
   src/air_fobulous.c
+  src/neopixel_task.c
   src/bme68x/common.c
   
 )

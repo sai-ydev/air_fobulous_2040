@@ -77,8 +77,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "FreeRTOS.h"
-#include "semphr.h"
+
 #include "bsec_integration.h"
 /**********************************************************************************************************************/
 /* local macro definitions */
