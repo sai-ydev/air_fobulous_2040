@@ -37,6 +37,7 @@ add_executable(
   AirFobulous 
   src/air_fobulous.c
   src/neopixel_task.c
+  src/blue_led_task.c
   src/bme68x/common.c
   
 )
