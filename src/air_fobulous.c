@@ -11,6 +11,7 @@
 #include "bsec_integration.h"
 #include "blue_led_task.h"
 #include "neopixel_task.h"
+#include "print_task.h"
 // I2C defines
 // This example will use I2C0 on GPIO8 (SDA) and GPIO9 (SCL) running at 400KHz.
 // Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
@@ -18,9 +19,6 @@
 #define I2C_SDA 18
 #define I2C_SCL 19
 
-
-
-#define PRINT_TASK_STACK_SIZE       500
 #define SD_CARD_TASK_STACK_SIZE     500
 
 #define BME68X_TASK_STACK_SIZE      500
@@ -29,27 +27,16 @@
 return_values_init ret_bme68x;
 struct bme68x_dev bme_dev;
 
-
-
-StaticTask_t xPrintTaskBuffer;
 StaticTask_t xSDCardTaskBuffer;
 
 StaticTask_t xBME68xTaskBuffer;
 StaticTask_t xZMOD4x10TaskBuffer;
 
-
-
-
-StackType_t xPrintTaskStack[PRINT_TASK_STACK_SIZE];
 StackType_t xSDCardTaskStack[SD_CARD_TASK_STACK_SIZE];
 
 StackType_t xBME68xTaskStack[BME68X_TASK_STACK_SIZE];
 StackType_t xZMOD4x10TaskStack[ZMOD4x10_TASK_STACK_SIZE];
 
-
-
-
-TaskHandle_t xPrintTaskHandle;
 TaskHandle_t xSDCardTaskHandle;
 
 TaskHandle_t xBME68xTaskHandle;
@@ -57,22 +44,6 @@ TaskHandle_t xZMOD4x10TaskHandle;
 
 SemaphoreHandle_t xI2CSemaphore;
 StaticSemaphore_t xI2CSemaphore_Buffer;
-
-
-/**
- * @brief Printing task
- * 
- * @param pvParams 
- * @returns None
- */
-void print_task(void *pvParams)
-{
-    while(1)
-    {
-        printf("Print Task Current Core: %u\n", portGET_CORE_ID());
-        vTaskDelay(250);
-    }
-}
 
 /**
  * @brief BME688 task
@@ -120,22 +91,12 @@ int main()
         while(1);
     }
 
-    
-    //vTaskCoreAffinitySet(xLEDTaskHandle, (1 << 0));
-
+    /* Task definition in blue_led_task.c - Same goes to other tasks*/
     init_blue_led_task();
 
     init_neopixel_task();
 
-    xPrintTaskHandle = xTaskCreateStatic(
-        print_task,
-        "print_task",
-        PRINT_TASK_STACK_SIZE,
-        NULL,
-        (tskIDLE_PRIORITY + 2),
-        xPrintTaskStack,
-        &xPrintTaskBuffer
-    );
+    init_print_task();    
 
     xBME68xTaskHandle = xTaskCreateStatic(
         BME68x_Task,

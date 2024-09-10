@@ -38,8 +38,8 @@ add_executable(
   src/air_fobulous.c
   src/neopixel_task.c
   src/blue_led_task.c
+  src/print_task.c
   src/bme68x/common.c
-  
 )
 
 # generate the header file into the source tree as it is included in the RP2040 datasheet
