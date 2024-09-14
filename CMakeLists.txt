@@ -39,6 +39,7 @@ add_executable(
   src/neopixel_task.c
   src/blue_led_task.c
   src/print_task.c
+  src/sdcard_log_task.c
   src/bme68x_task.c
   src/bme68x/common.c
 )

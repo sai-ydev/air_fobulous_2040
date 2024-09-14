@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include "FreeRTOS.h"
 #include "task.h"
-#include "bsec_integration.h"
+#include "common.h"
+
+#include <string.h>
 
 #define BME68X_TASK_STACK_SIZE      500
 
@@ -9,7 +11,7 @@ StaticTask_t xBME68xTaskBuffer;
 TaskHandle_t xBME68xTaskHandle;
 StackType_t xBME68xTaskStack[BME68X_TASK_STACK_SIZE];
 
-return_values_init ret_bme68x;
+//return_values_init ret_bme68x;
 struct bme68x_dev bme_dev;
 
 /**

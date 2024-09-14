@@ -11,18 +11,15 @@
 #include "blue_led_task.h"
 #include "neopixel_task.h"
 #include "print_task.h"
+#include "bme68x_task.h"
+#include "sdcard_log_task.h"
+
 // I2C defines
 // This example will use I2C0 on GPIO8 (SDA) and GPIO9 (SCL) running at 400KHz.
 // Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
 #define I2C_PORT i2c1
 #define I2C_SDA 18
 #define I2C_SCL 19
-
-#define SD_CARD_TASK_STACK_SIZE     500
-
-StaticTask_t xSDCardTaskBuffer;
-StackType_t xSDCardTaskStack[SD_CARD_TASK_STACK_SIZE];
-TaskHandle_t xSDCardTaskHandle;
 
 SemaphoreHandle_t xI2CSemaphore;
 StaticSemaphore_t xI2CSemaphore_Buffer;
@@ -62,6 +59,7 @@ int main()
 
     init_print_task();    
 
+    init_sdcard_log_task();
     
     //vTaskCoreAffinitySet(xLEDTaskHandle, (1 << 1));
     vTaskStartScheduler();
