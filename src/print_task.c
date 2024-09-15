@@ -22,7 +22,7 @@ void print_task(void *pvParams)
     while(1)
     {
         printf("Print Task Current Core: %u\n", portGET_CORE_ID());
-        vTaskDelay(50);
+        vTaskDelay(500);
     }
 }
 

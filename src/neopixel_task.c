@@ -1,7 +1,9 @@
+#include "stdio.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "hardware/pio.h"
 #include "ws2812.pio.h"
+#include "neopixel_task.h"
 
 #ifdef PICO_DEFAULT_WS2812_PIN
 #define WS2812_PIN PICO_DEFAULT_WS2812_PIN
@@ -16,14 +18,49 @@
 #define NEOPIXEL_TASK_STACK_SIZE    500
 
 StaticTask_t xNeopixelTaskBuffer;
-
 StackType_t xNeoPixelTaskStack[NEOPIXEL_TASK_STACK_SIZE];
-
 TaskHandle_t xNeoPixelTaskHandle;
 
+/* neopixel used in this board is GRB*/
+const neopixel_color_t neopixel_color[NEOPIXEL_COLOR_MAX] ={
+    {0, 0, 0, 0}, /* Black */
+    {0, 0, 255, 0}, /* RED */
+    {255, 0, 0, 0}, /* GREEN */
+    {0, 0, 255, 0}, /* BLUE */
+    {165, 255, 0, 0}, /* ORANGE */
+    {0, 255, 0, 255}, /* CYAN */
+    {0, 0, 255, 255}, /* YELLOW */
+    {0, 75, 130, 0}, /* INDIGO */
+    {43, 138, 226, 0}, /* VIOLET */
+    {0, 255, 255, 0}, /* PURPLE */
+    {0, 255, 255, 255} /* WHITE */
+};
+
+const char* neopixel_color_names[NEOPIXEL_COLOR_MAX] = {
+    "Black",
+    "Red",
+    "Green",
+    "Blue",
+    "Orange",
+    "Cyan",
+    "Yellow",
+    "Indigo",
+    "Violet",
+    "Purple",
+    "White"
+};
+
+/* play colors of user's choice */
 static inline void put_pixel(uint32_t pixel_grb)
 {
     pio_sm_put_blocking(pio0, 0, pixel_grb << 8u);
+}
+
+/* play colors defined in neopixel_task.h */
+static void put_color(neopixel_color_t color)
+{
+    uint32_t c = *((uint32_t*) &color);
+    pio_sm_put_blocking(pio0, 0, c);
 }
 
 static inline uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b)
@@ -44,30 +81,14 @@ void neopixel_task(void *pvParams)
 
     while(1)
     {
-        put_pixel(urgb_u32(255, 0, 0));
-        /*TODO: Neopixel drivers*/
-        vTaskDelay(100);
-
-        put_pixel(urgb_u32(0, 0, 0));
-        /*TODO: Neopixel drivers*/
-        vTaskDelay(100);
-
-        put_pixel(urgb_u32(0, 255, 0));
-        /*TODO: Neopixel drivers*/
-        vTaskDelay(100);
         
-        put_pixel(urgb_u32(0, 0, 0));
-        /*TODO: Neopixel drivers*/
-        vTaskDelay(100);
+        printf("Playing color %s\n", neopixel_color_names[YELLOW]);
+        put_color(neopixel_color[YELLOW]);
+        vTaskDelay(1000);
 
-        put_pixel(urgb_u32(0, 0, 255));
-        /*TODO: Neopixel drivers*/
-        vTaskDelay(100);
-        
-        put_pixel(urgb_u32(0, 0, 0));
-        /*TODO: Neopixel drivers*/
-        vTaskDelay(100);
-        
+        put_color(neopixel_color[BLACK]);
+        vTaskDelay(1000); 
+
     }
 }
 

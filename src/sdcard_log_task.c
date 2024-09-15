@@ -12,7 +12,7 @@ void sdcard_log_task(void *pvParams)
 {
     while(1)
     {
-        printf("SD Card Logging Task Core: %u\n", portGET_CORE_ID());
+        //printf("SD Card Logging Task Core: %u\n", portGET_CORE_ID());
         vTaskDelay(250);
     }
 }
