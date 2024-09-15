@@ -35,7 +35,13 @@ typedef enum
 
 } e_neopixel_color_names;
 
+typedef enum
+{
+    NEOPIXEL_STATE_IDLE = 0, /* neopixel turned off */
+    NEOPIXEL_STATE_GOOD, /* Green */
+    
 
+} e_neopixel_state;
 
 
 void init_neopixel_task(void);

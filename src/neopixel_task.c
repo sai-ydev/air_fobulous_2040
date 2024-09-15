@@ -81,16 +81,19 @@ void neopixel_task(void *pvParams)
 
     while(1)
     {
-        for(e_neopixel_color_names color_name = BLACK; color_name < NEOPIXEL_COLOR_MAX; color_name++)
+        for(int i = 0; i < 255; i++)
         {
-            printf("Playing color %s\n", neopixel_color_names[color_name]);
-            put_color(neopixel_color[color_name]);
-            vTaskDelay(2500);
-
-            put_color(neopixel_color[BLACK]);
-            vTaskDelay(2500); 
-
+            put_pixel(urgb_u32(0, i, i));
+            vTaskDelay(5);
         }
+
+        for(int i = 255; i >= 0; i--)
+        {
+            put_pixel(urgb_u32(0, i, i));
+            vTaskDelay(5);     
+        }
+
+
     }
 }
 
