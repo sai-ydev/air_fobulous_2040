@@ -25,13 +25,13 @@ TaskHandle_t xNeoPixelTaskHandle;
 const neopixel_color_t neopixel_color[NEOPIXEL_COLOR_MAX] ={
     {0, 0, 0, 0}, /* Black */
     {0, 0, 255, 0}, /* RED */
-    {255, 0, 0, 0}, /* GREEN */
-    {0, 0, 255, 0}, /* BLUE */
-    {165, 255, 0, 0}, /* ORANGE */
+    {0, 0, 0, 255}, /* GREEN */
+    {0, 255, 0, 0}, /* BLUE */
+    {0, 0, 220, 50}, /* ORANGE */
     {0, 255, 0, 255}, /* CYAN */
     {0, 0, 255, 255}, /* YELLOW */
-    {0, 75, 130, 0}, /* INDIGO */
-    {43, 138, 226, 0}, /* VIOLET */
+    {0, 180, 30, 0}, /* INDIGO */
+    {0, 255, 169, 0}, /* VIOLET */
     {0, 255, 255, 0}, /* PURPLE */
     {0, 255, 255, 255} /* WHITE */
 };
@@ -81,14 +81,16 @@ void neopixel_task(void *pvParams)
 
     while(1)
     {
-        
-        printf("Playing color %s\n", neopixel_color_names[YELLOW]);
-        put_color(neopixel_color[YELLOW]);
-        vTaskDelay(1000);
+        for(e_neopixel_color_names color_name = BLACK; color_name < NEOPIXEL_COLOR_MAX; color_name++)
+        {
+            printf("Playing color %s\n", neopixel_color_names[color_name]);
+            put_color(neopixel_color[color_name]);
+            vTaskDelay(2500);
 
-        put_color(neopixel_color[BLACK]);
-        vTaskDelay(1000); 
+            put_color(neopixel_color[BLACK]);
+            vTaskDelay(2500); 
 
+        }
     }
 }
 
