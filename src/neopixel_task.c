@@ -81,17 +81,7 @@ void neopixel_task(void *pvParams)
 
     while(1)
     {
-        for(int i = 0; i < 255; i++)
-        {
-            put_pixel(urgb_u32(0, i, i));
-            vTaskDelay(5);
-        }
-
-        for(int i = 255; i >= 0; i--)
-        {
-            put_pixel(urgb_u32(0, i, i));
-            vTaskDelay(5);     
-        }
+        breathe_mode(neopixel_color[CYAN]);
     }
 }
 
@@ -140,7 +130,7 @@ void breathe_mode(neopixel_color_t color)
     uint8_t b_val;
     uint8_t g_val;
 
-    for(uint8_t i = RGB_CHANNEL_MIN; i <= RGB_CHANNEL_MAX; i++)
+    for(uint8_t i = RGB_CHANNEL_MIN; i < RGB_CHANNEL_MAX; i++)
     {
         r_val = VAL_CHECK(i, red_max);
         g_val = VAL_CHECK(i, green_max);
@@ -150,13 +140,13 @@ void breathe_mode(neopixel_color_t color)
         vTaskDelay(5);
     }
 
-    for(uint8_t j = RGB_CHANNEL_MAX; j >= RGB_CHANNEL_MIN; j--)
+    for(uint8_t j = RGB_CHANNEL_MAX; j > RGB_CHANNEL_MIN; j--)
     {
         r_val = VAL_CHECK(j, red_max);
         g_val = VAL_CHECK(j, green_max);
         b_val = VAL_CHECK(j, blue_max);
-        printf("RGB Values: %u %u %u\n", r_val, g_val, b_val);
-        put_pixel(urgb_u32(j, j, 0));
+        
+        put_pixel(urgb_u32(r_val, g_val, b_val));
         vTaskDelay(5);
     }
 
