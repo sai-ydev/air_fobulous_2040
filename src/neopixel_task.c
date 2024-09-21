@@ -31,7 +31,7 @@ const neopixel_color_t neopixel_color[NEOPIXEL_COLOR_MAX] ={
     {0, 0, 220, 50}, /* ORANGE */
     {0, 255, 0, 255}, /* CYAN */
     {0, 0, 255, 255}, /* YELLOW */
-    {0, 180, 30, 0}, /* INDIGO */
+    {0, 255, 35, 0}, /* INDIGO */
     {0, 255, 169, 0}, /* VIOLET */
     {0, 255, 255, 0}, /* PURPLE */
     {0, 255, 255, 255} /* WHITE */
@@ -81,7 +81,7 @@ void neopixel_task(void *pvParams)
 
     while(1)
     {
-        breathe_mode(neopixel_color[CYAN]);
+        breathe_mode(neopixel_color[VIOLET]);
     }
 }
 
@@ -139,7 +139,7 @@ void breathe_mode(neopixel_color_t color)
         put_pixel(urgb_u32(r_val, g_val, b_val));
         vTaskDelay(5);
     }
-
+    vTaskDelay(2500);
     for(uint8_t j = RGB_CHANNEL_MAX; j > RGB_CHANNEL_MIN; j--)
     {
         r_val = VAL_CHECK(j, red_max);
@@ -149,6 +149,7 @@ void breathe_mode(neopixel_color_t color)
         put_pixel(urgb_u32(r_val, g_val, b_val));
         vTaskDelay(5);
     }
+    vTaskDelay(1000);
 
 
 }
