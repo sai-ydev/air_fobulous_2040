@@ -49,6 +49,8 @@ typedef enum
 } e_neopixel_air_quality;
 
 
+/* enum used to change LED behavior 
+  based on the device status */
 typedef enum
 {
     NEOPIXEL_STATE_IDLE = 0,
