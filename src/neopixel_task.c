@@ -80,7 +80,7 @@ void neopixel_task(void *pvParams)
     ws2812_program_init(pio0, 0, offset, WS2812_PIN, 800000, IS_RGBW);
 
     //turn LED off
-    put_color(neopixel_color[BLACK]);
+    //put_color(neopixel_color[BLACK]);
 
     while(1)
     {
