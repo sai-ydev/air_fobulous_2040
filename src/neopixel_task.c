@@ -5,6 +5,7 @@
 #include "hardware/pio.h"
 #include "ws2812.pio.h"
 #include "neopixel_task.h"
+#include "timers.h"
 
 #define RGB_CHANNEL_MAX 255
 #define RGB_CHANNEL_MIN 0
@@ -67,6 +68,7 @@ uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b);
 /* breathe mode - breathes the neopixel based on the color chosen*/
 void breathe_mode(neopixel_color_t color);
 
+void process_led_events();
 
 /**
  * @brief Neopixel Task
@@ -80,7 +82,7 @@ void neopixel_task(void *pvParams)
     ws2812_program_init(pio0, 0, offset, WS2812_PIN, 800000, IS_RGBW);
 
     //turn LED off
-    //put_color(neopixel_color[BLACK]);
+    put_color(neopixel_color[BLACK]);
 
     while(1)
     {
@@ -155,4 +157,14 @@ void breathe_mode(neopixel_color_t color)
     vTaskDelay(1000);
 
 
+}
+
+void process_led_events()
+{
+    switch(neopixel_state)
+    {
+
+        default:
+            break;
+    }
 }
