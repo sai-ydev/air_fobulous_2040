@@ -53,8 +53,11 @@ const char* neopixel_color_names[NEOPIXEL_COLOR_MAX] = {
 };
 
 StaticTask_t xNeopixelTaskBuffer;
-StackType_t xNeoPixelTaskStack[NEOPIXEL_TASK_STACK_SIZE];
-TaskHandle_t xNeoPixelTaskHandle;
+StackType_t xNeopixelTaskStack[NEOPIXEL_TASK_STACK_SIZE];
+TaskHandle_t xNeopixelTaskHandle;
+
+TimerHandle_t xNeopixelTimerHandle;
+StaticTimer_t xNeopixelTimerBuffer;
 
 e_neopixel_air_quality air_quality = NEOPIXEL_AQ_IDLE;
 e_neopixel_state neopixel_state = NEOPIXEL_AQ_IDLE;
@@ -69,6 +72,8 @@ uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b);
 void breathe_mode(neopixel_color_t color);
 
 void process_led_events();
+
+void vNeopixelTimerCallback(TimerHandle_t xTimer);
 
 /**
  * @brief Neopixel Task
@@ -92,13 +97,13 @@ void neopixel_task(void *pvParams)
 
 void init_neopixel_task(void)
 {
-    xNeoPixelTaskHandle = xTaskCreateStatic(
+    xNeopixelTaskHandle = xTaskCreateStatic(
         neopixel_task,
         "NeoPixel Task",
         NEOPIXEL_TASK_STACK_SIZE,
         NULL,
         (tskIDLE_PRIORITY + 8),
-        xNeoPixelTaskStack,
+        xNeopixelTaskStack,
         &xNeopixelTaskBuffer
     );
 }
@@ -167,4 +172,13 @@ void process_led_events()
         default:
             break;
     }
+}
+
+/**
+ * @brief timer callback function
+ * 
+ */
+void vNeopixelTimerCallback(TimerHandle_t xTimer)
+{
+    
 }
