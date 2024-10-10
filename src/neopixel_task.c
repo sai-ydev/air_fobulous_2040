@@ -21,6 +21,7 @@
 #define NUM_PIXELS 1
 
 #define NEOPIXEL_TASK_STACK_SIZE    500
+#define NEOPIXEL_TIMER_INTERVAL_MS  pdMS_TO_TICKS(1) 
 #define VAL_CHECK(x, max) x > max ? max : x
 
 /* neopixel used in this board is GRB*/
@@ -105,6 +106,15 @@ void init_neopixel_task(void)
         (tskIDLE_PRIORITY + 8),
         xNeopixelTaskStack,
         &xNeopixelTaskBuffer
+    );
+
+    xNeopixelTimerHandle = xTimerCreateStatic(
+        "NeoPixel Timer",
+        NEOPIXEL_TIMER_INTERVAL_MS,
+        pdTRUE,
+        (void*) 0,
+        vNeopixelTimerCallback,
+        &xNeopixelTimerBuffer
     );
 }
 
