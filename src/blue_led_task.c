@@ -3,8 +3,15 @@
 #include "task.h"
 #include "blue_led_task.h"
 
-
 #define LED_TASK_STACK_SIZE 500
+#define DELAY pdMS_TO_TICKS(100)
+
+typedef enum
+{
+    LED_TOGGLE,
+    LED_DELAY,
+
+} e_led_blinking_state;
 
 /* Task Buffer Definitions */
 StaticTask_t xLEDTaskBuffer;
@@ -15,6 +22,9 @@ StackType_t xLEDTaskStack[LED_TASK_STACK_SIZE];
 /* Task Handle definitions */
 TaskHandle_t xLEDTaskHandle;
 
+e_led_blinking_state led_state = LED_TOGGLE;
+uint32_t system_tick;
+
 /**
 * @brief Blue LED blinking task
 * @param Function params
@@ -22,12 +32,28 @@ TaskHandle_t xLEDTaskHandle;
 */
 void led_blinking_task(void *pvParameters)
 {
+    
+
     while(1)
     {
-        gpio_put(BLUE_LED, true);
-        vTaskDelay(250);
-        gpio_put(BLUE_LED, false);
-        vTaskDelay(250);
+        switch(led_state)
+        {
+            case LED_TOGGLE:
+                gpio_put(BLUE_LED, !gpio_get(BLUE_LED));
+                led_state = LED_DELAY;
+                system_tick = xTaskGetTickCount();
+                break;
+            
+            case LED_DELAY:
+                if(xTaskGetTickCount() < (system_tick + DELAY))
+                {
+                    break;
+                }
+                led_state = LED_TOGGLE;
+                break;
+            default:
+                break;
+        }
     }
 }
 
