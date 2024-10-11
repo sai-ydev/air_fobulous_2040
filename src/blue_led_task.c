@@ -1,17 +1,26 @@
 #include "pico/stdlib.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "utils.h"
 #include "blue_led_task.h"
 
 #define LED_TASK_STACK_SIZE 500
-#define DELAY pdMS_TO_TICKS(100)
+#define DELAY pdMS_TO_TICKS(250)
 
 typedef enum
 {
     LED_TOGGLE,
     LED_DELAY,
+    LED_IDLE
 
 } e_led_blinking_state;
+
+typedef PACKED_STRUCT
+{
+    e_led_blinking_state current_state;
+    uint32_t start;
+
+} blue_led_state_t;
 
 /* Task Buffer Definitions */
 StaticTask_t xLEDTaskBuffer;
@@ -22,9 +31,9 @@ StackType_t xLEDTaskStack[LED_TASK_STACK_SIZE];
 /* Task Handle definitions */
 TaskHandle_t xLEDTaskHandle;
 
-e_led_blinking_state led_state = LED_TOGGLE;
-uint32_t system_tick;
-
+blue_led_state_t blue_led = {
+    .current_state = LED_IDLE,
+};
 /**
 * @brief Blue LED blinking task
 * @param Function params
@@ -32,24 +41,29 @@ uint32_t system_tick;
 */
 void led_blinking_task(void *pvParameters)
 {
-    
 
     while(1)
     {
-        switch(led_state)
+        uint32_t now = (uint32_t) xTaskGetTickCount();
+
+        switch(blue_led.current_state)
         {
             case LED_TOGGLE:
                 gpio_put(BLUE_LED, !gpio_get(BLUE_LED));
-                led_state = LED_DELAY;
-                system_tick = xTaskGetTickCount();
+                blue_led.current_state = LED_DELAY;
+                blue_led.start = now;
                 break;
             
             case LED_DELAY:
-                if(xTaskGetTickCount() < (system_tick + DELAY))
+                if(now < (blue_led.start + DELAY))
                 {
                     break;
                 }
-                led_state = LED_TOGGLE;
+                blue_led.current_state = LED_TOGGLE;
+                break;
+            
+            case LED_IDLE:
+                blue_led.current_state = LED_TOGGLE;
                 break;
             default:
                 break;
@@ -64,7 +78,7 @@ void init_blue_led_task(void)
         "LED_Blinky",
         LED_TASK_STACK_SIZE,
         NULL,
-        (tskIDLE_PRIORITY + 2),
+        (tskIDLE_PRIORITY + 4),
         xLEDTaskStack,
         &xLEDTaskBuffer
     );

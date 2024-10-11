@@ -3,8 +3,8 @@
 #define NEOPIXEL_TASK_H
 
 #include <stdlib.h> 
-
-#define PACKED_STRUCT struct __packed 
+#include "utils.h"
+ 
 
 /* bitfield struct to store color information*/
 typedef PACKED_STRUCT
